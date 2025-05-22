@@ -59,10 +59,10 @@ Fonctionnement
 
 Détails des calculs
 
-- 💶 Somme : affichée directement
-- 🧥 Poids : somme x 1.5 kg
-- 🛏️ Nuits : 1 nuit par tranche de 20 €
-- 🍽️ Repas : 1 repas par tranche de 20 €
+- Somme : affichée directement
+- Poids : somme x 1.5 kg
+- Nuits : 1 nuit par tranche de 20 €
+- Repas : 1 repas par tranche de 20 €
 
 ---
 
