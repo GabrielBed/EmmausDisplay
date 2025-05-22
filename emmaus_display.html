@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emmaûs - Dons en direct</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: 'Montserrat', sans-serif;
+            background: url('static/fond.png') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+        }
+
+        .overlay {
+            background: rgba(0, 0, 0, 0.7);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            padding: 2rem;
+            gap: 1.5rem;
+            box-sizing: border-box;
+        }
+
+        header {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        header img {
+            height: 150px;
+        }
+
+        header h1 {
+            font-size: 3rem;
+            color: white;
+            margin: 0.5rem 0 0 0;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+            margin-top: 1rem;
+        }
+
+        .card {
+            text-align: center;
+        }
+
+        .card span {
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            transition: all 0.8s ease;
+        }
+
+        .card h2 {
+            font-size: 1.5rem;
+            color: #ffe600;
+            margin-top: 1rem;
+        }
+
+        .footer {
+            background: linear-gradient(to right, #003399, #ffcc00);
+            color: white;
+            padding: 1.5rem;
+            text-align: center;
+            font-size: 1.2rem;
+            width: 100%;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            z-index: 999;
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay">
+        <header>
+            <img src="static/logo2.png" alt="Emmaûs logo">
+            <h1>Grâce à vous...</h1>
+        </header>
+
+        <div class="stats">
+            <div class="card">
+                <span id="amount">0 €</span>
+                <h2>Somme récoltée</h2>
+            </div>
+            <div class="card">
+                <span id="clothes">0 kg</span>
+                <h2>Kg de vêtements sauvés</h2>
+            </div>
+            <div class="card">
+                <span id="nights">0</span>
+                <h2>Nuits d'hébergement</h2>
+            </div>
+            <div class="card">
+                <span id="meals">0</span>
+                <h2>Repas offerts</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        5€ = 1 repas chaud &nbsp; • &nbsp; 15€ = 1 nuit &nbsp; • &nbsp; 1€ = 1,5 kg de vêtements sauvés
+    </div>
+
+    <script>
+        const animateValue = (id, start, end, duration, suffix = '') => {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                obj.innerText = value.toLocaleString() + suffix;
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+
+            window.requestAnimationFrame(step);
+        };
+
+        let lastMontant = 0;
+
+        function updateDisplay(force = false) {
+    fetch('/data')
+        .then(res => res.json())
+        .then(data => {
+            const somme = data.montant;
+            if (force || somme !== lastMontant) {
+                const packs = Math.floor(somme / 20); // 1 nuit + 1 repas = 20€
+
+                animateValue("amount", 0, somme, 2000, " €");
+                animateValue("clothes", 0, somme * 1.5, 2000, " kg");
+                animateValue("nights", 0, packs, 2000);
+                animateValue("meals", 0, packs, 2000);
+
+                lastMontant = somme;
+            }
+        })
+        .catch(err => console.error("Erreur de mise à jour :", err));
+}
+
+
+		 const bc = new BroadcastChannel('emmaus_refresh');
+  bc.onmessage = (event) => {
+    if (event.data === 'refresh') {
+      updateDisplay(true);
+    }
+  };
+    </script>
+</body>
+</html>
